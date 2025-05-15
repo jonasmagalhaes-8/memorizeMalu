@@ -41,11 +41,31 @@
 </head>
 
 <body>
-  <div id="emailSection">
-    <p>Insira seu e-mail para iniciar:</p>
-    <input type="email" id="emailInput" placeholder="seuemail@exemplo.com" />
-    <button id="startBtn">Iniciar</button>
+  <div id="nomeSection">
+    <input type="text" id="nomeInput" placeholder="Seu nome" />
   </div>
+  <div id="emailSection">
+    <input type="email" id="emailInput" placeholder="Seu e-mail" />
+  </div>
+  <div id="idadeSection">
+    <input type="number" id="idadeInput" placeholder="Sua idade" />
+  </div>
+  <div id="generoSection">
+    <input type="text" id="generoInput" placeholder="Seu gênero" />
+  </div>
+  <div id="escolaridadeSection">
+    <input type="text" id="escolaridadeInput" placeholder="Sua escolaridade" />
+  </div>
+  <div id="ocupacaoSection">
+    <input type="text" id="ocupacaoInput" placeholder="Sua ocupação" />
+  </div>
+  <div id="rendaSection">
+    <input type="number" id="rendaInput" placeholder="Sua renda per capita" />
+  </div>
+  <button id="startBtn">Iniciar</button>
+
+
+
 
   <div id="content">
     <div id="timer"></div>
@@ -80,15 +100,62 @@
     const startBtn = document.getElementById("startBtn");
 
     startBtn.addEventListener("click", () => {
+      const nome = document.getElementById("nomeInput").value.trim();
       const email = document.getElementById("emailInput").value.trim().toLowerCase();
-      if (!email) {
-        alert("Por favor, insira um e-mail válido para iniciar.");
+      const idade = document.getElementById("idadeInput").value.trim();
+      const genero = document.getElementById("generoInput").value.trim();
+      const escolaridade = document.getElementById("escolaridadeInput").value.trim();
+      const ocupacao = document.getElementById("ocupacaoInput").value.trim();
+      const renda = document.getElementById("rendaInput").value.trim();
+
+      // Nome obrigatório
+      if (!nome) {
+        alert("Por favor, insira seu nome.");
+        return;
+      }
+
+      // Validação do e-mail
+      if (!email || !email.includes("@") || !email.includes(".")) {
+        alert("Por favor, insira um e-mail válido.");
+        return;
+      }
+
+      // Validação da idade (deve ser número > 0)
+      if (!idade || isNaN(idade) || parseInt(idade) <= 0) {
+        alert("Por favor, insira uma idade válida.");
+        return;
+      }
+
+      // Validação da renda (deve ser número >= 0)
+      if (!renda || isNaN(renda) || parseFloat(renda) < 0) {
+        alert("Por favor, insira uma renda válida.");
+        return;
+      }
+
+      // Demais campos obrigatórios
+      if (!genero) {
+        alert("Por favor, insira seu gênero.");
+        return;
+      }
+      if (!escolaridade) {
+        alert("Por favor, insira sua escolaridade.");
+        return;
+      }
+      if (!ocupacao) {
+        alert("Por favor, insira sua ocupação.");
         return;
       }
       currentEmail = email;
 
       // Esconde o form do email e mostra o conteúdo do teste
+      document.getElementById("nomeSection").style.display = "none";
       document.getElementById("emailSection").style.display = "none";
+      document.getElementById("idadeSection").style.display = "none";
+      document.getElementById("generoSection").style.display = "none";
+      document.getElementById("escolaridadeSection").style.display = "none";
+      document.getElementById("ocupacaoSection").style.display = "none";
+      document.getElementById("rendaSection").style.display = "none";
+      document.getElementById("startBtn").style.display = "none";
       document.getElementById("content").style.display = "block";
 
       rodada = 0;
