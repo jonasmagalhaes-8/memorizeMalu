@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Memorize!</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #content {
+      display: none;
+    }
+
+    #image {
+      max-width: 300px;
+      margin-bottom: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .word-item {
+      display: inline-block;
+      width: 180px;
+      text-align: left;
+      margin: 5px;
+    }
+
+    #wordForm {
+      display: none;
+    }
+
+    #timer {
+      font-size: 24px;
+      font-weight: bold
+    }
+  </style>
+</head>
+
+<body>
+  <div id="emailSection">
+    <p>Insira seu e-mail para iniciar:</p>
+    <input type="email" id="emailInput" placeholder="seuemail@exemplo.com" />
+    <button id="startBtn">Iniciar</button>
+  </div>
+
+  <div id="content">
+    <div id="timer"></div>
+    <p id="prompt"></p>
+    <img id="image" src="" alt="Imagem de figuras" />
+    <form id="wordForm"></form>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const palavras = [
+      "Casa", "Almofada", "Relógio", "Martela", "Vela", "Barco", "Isqueiro", "Boné", "Caderno", "Gato", "Astronauta",
+      "Tesoura", "Papel higiênico", "Fone", "Banheira", "Oceano", "Árvore", "Piscina", "Espelho", "Caneta", "Fita",
+      "Liquidificador", "Estrela", "Trem", "Avião", "Carro", "Tampinha", "Garrafa", "Camiseta", "Ônibus", "Sabonete",
+      "Praia", "Pincel", "Saco", "Chapéu", "Piano", "Perfume", "Mala", "Chinelo", "Livro", "Abajur", "Guitarra",
+      "Seringa", "Nuvem", "Cachorro", "Banana", "Panela", "Colher", "Porta-retrato", "Guarda-chuva", "Cinto",
+      "Computador", "Robô", "Toalha", "Vaso sanitário", "Banheiro", "Bicicleta", "Fita", "Cama", "Flor"
+    ];
+
+    const respostas = {
+      1: ["Casa", "Cama", "Árvore", "Mala", "Avião", "Bicicleta", "Carro", "Barco", "Garrafa"],
+      2: ["Ônibus", "Guarda-chuva", "Praia", "Chapéu", "Piscina", "Livro", "Abajur", "Caneta", "Cachorro"],
+      3: ["Panela", "Colher", "Papel higiênico", "Liquidificador", "Flor", "Banheira", "Computador", "Gato", "Vaso sanitário"]
+    };
+
+    let rodada = 0;
+    let totalPorcentagem = 0;
+    let timerInterval = null;
+    let currentEmail = "";
+    let imageIndex = 1;
+
+    const startBtn = document.getElementById("startBtn");
+
+    startBtn.addEventListener("click", () => {
+      const email = document.getElementById("emailInput").value.trim().toLowerCase();
+      if (!email) {
+        alert("Por favor, insira um e-mail válido para iniciar.");
+        return;
+      }
+      currentEmail = email;
+
+      // Esconde o form do email e mostra o conteúdo do teste
+      document.getElementById("emailSection").style.display = "none";
+      document.getElementById("content").style.display = "block";
+
+      rodada = 0;
+      totalPorcentagem = 0;
+
+      // Busca a imagem que o usuário deve ver primeiro, ou começa da 1
+      imageIndex = parseInt(localStorage.getItem(`currentImage_${currentEmail}`)) || 1;
+      document.getElementById("image").src = `src/imagem${imageIndex}.png`;
+
+      document.getElementById("wordForm").innerHTML = "";
+      document.getElementById("result").innerText = "";
+      document.getElementById("wordForm").style.display = "none";
+
+      palavras.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "word-item";
+        div.innerHTML = `<label><input type="checkbox" name="palavras" value="${p}" disabled> ${p}</label>`;
+        document.getElementById("wordForm").appendChild(div);
+      });
+
+      iniciarRodada();
+    });
+
+    function iniciarRodada() {
+      if (rodada >= 3) {
+        const media = (totalPorcentagem / 3).toFixed(2);
+        localStorage.setItem(`media_img${imageIndex}_${currentEmail}`, media);
+
+        let feedback;
+
+        if (media <= 39) {
+          feedback = `Seu desempenho no teste de memória imediata foi de 0% a 30%, o que indica que você pode estar enfrentando dificuldades consideráveis em reter e recuperar informações rapidamente. Isso é perfeitamente compreensível e pode ocorrer por vários motivos, como fadiga, estresse ou falta de estratégias específicas de memorização. Recomenda-se uma avaliação mais aprofundada para identificar causas subjacentes e o desenvolvimento de um plano de intervenção focado em estratégias de memorização e organização da informação.
+
+ Sugestões para melhorar a memória de curto prazo: 
+
+1. Estratégias de memorização:
+
+- Agrupamento (chunking): Dividir a informação em blocos menores e mais fáceis de memorizar.
+
+- Repetição ativa: Repetir as informações em voz alta logo após recebê-las, ou escrevê-las para reforçar a retenção.
+
+- Mnemônicos: Criar associações criativas, como acrônimos ou histórias, para tornar as informações mais fáceis de lembrar.
+
+2. Exercícios e atividades práticas:
+
+- Jogos de memória:
+
+- Leitura ativa: Após ler um parágrafo ou assistir a um vídeo, tente resumir ou repetir a informação para reforçar a memorização.
+
+- Treinamento cognitivo: Use aplicativos de treinamento mental como Lumosity, Peak, que oferecem atividades específicas para melhorar a memória.
+
+- Exercícios auditivos e visuais: Ouça uma lista de palavras ou números e tente repeti-los após alguns segundos.
+
+3.  Cuidados com a saúde cerebral:
+
+- Sono adequado: A memória é fortemente influenciada pela qualidade do sono. Tente dormir de 7 a 8 horas por noite.
+
+- Exercício físico regular: A prática de atividades físicas melhora a oxigenação cerebral e pode aumentar a capacidade cognitiva.
+
+- Alimentação saudável: Mantenha uma dieta equilibrada com alimentos que favoreçam a saúde do cérebro, como alimentos ricos em antioxidantes, ômega-3 e vitaminas.
+
+ Sugestões de encaminhamentos: 
+
+Avaliação de saúde física e emocional: Se houver preocupação com aspectos como cansaço crônico, estresse ou problemas de saúde, seria útil uma avaliação médica ou psicológica para verificar fatores que podem estar impactando a memória.
+
+Considerar o acompanhamento com um neuropsicólogo ou psicólogo especializado, que possa oferecer exercícios personalizados e avaliar possíveis questões subjacentes que afetam a memória.`
+        }
+        else if (media >= 40 && media <= 69) {
+          feedback = `Seu desempenho no teste de memória imediata foi de 40% a 60%, o que indica que você está encontrando desafios em reter e recuperar informações rapidamente. Isso é comum e pode ser influenciado por diversos fatores, como distrações, cansaço ou até a falta de estratégias eficazes de memorização. Recomenda-se trabalhar em técnicas de memorização, como agrupamento e repetição, e realizar atividades que estimulem a memória, além de avaliar a qualidade do sono, fatores emocionais e nível de estresse que possam estar impactando o desempenho.
+
+Sugestões para melhorar a memória de curto prazo:
+
+1. Técnicas de Memorização:
+
+- Agrupamento (chunking): Organize informações em blocos
+
+- Repetição ativa: Repita em voz alta ou escreva o que se deseja lembrar imediatamente após ouvir ou ver a informação.
+
+- Associe novas informações com algo já conhecido 
+
+2. Exercícios práticos e jogos de memória:
+
+- Jogos como Sudoku, palavras cruzadas e quebra-cabeças ajudam a estimular o cérebro de maneira divertida e eficaz.
+
+- Aplicativos de treino cognitivo como Lumosity ou CogniFit, que oferecem exercícios específicos para melhorar a memória.
+
+3. Cuidados com o estilo de vida:
+
+- Sono adequado: Tente dormir de 7 a 8 horas por noite, pois o sono tem um papel fundamental na consolidação da memória.
+
+- Exercício físico: Atividades como caminhada, yoga ou musculação ajudam na saúde cerebral.
+
+- Alimentação balanceada: Consumir alimentos ricos em antioxidantes, ômega-3 e vitaminas essenciais para a saúde cerebral.
+
+ Sugestões de encaminhamentos: 
+
+Avaliação de estresse ou saúde mental: Caso o estresse ou a ansiedade esteja afetando o desempenho cognitivo, pode ser útil buscar apoio psicológico.`;
+        }
+        else {
+          feedback = `Você teve um excelente desempenho no teste de memória imediata, com acertos entre 70% e 100%. Isso demonstra uma boa capacidade de retenção e recuperação de informações a curto prazo, o que é muito positivo tanto para o aprendizado quanto para a realização de tarefas cotidianas. Recomenda-se que continue praticando e aplicando estratégias eficazes de memorização, com foco na diversidade de estímulos e desafios para o cérebro, pois isso ajudará a manter e até melhorar ainda mais sua performance cognitiva.
+
+Sugestões para manutenção e melhora da memória de curto prazo:
+
+1. Estratégias de manutenção:
+
+- Repetição espaçada: Reforce as informações aprendidas em intervalos de tempo cada vez maiores (por exemplo, 1 hora, 1 dia, 1 semana), para consolidar melhor a memória.
+
+- Desafios de memorização: Continue desafiando-se com novas tarefas de memorização, como aprender novos vocabulários ou memorizar listas complexas.
+
+2. Atividades cognitivas adicionais:
+
+- Jogue com jogos que desafiem sua capacidade de memória, como Sudoku, palavras cruzadas e quebra-cabeças.
+
+- Leitura ativa: Leia artigos ou livros e resuma mentalmente ou por escrito o conteúdo após a leitura.
+
+- Exercícios de memória auditiva e visual: Ouça listas de palavras ou números e tente repeti-los ou memorize imagens por um curto período de tempo e depois descreva-as.
+
+- Aplicativos de treinamento cognitivo: Use apps como Lumosity ou Peak, que oferecem treinos específicos para a memória e atenção.
+
+3.  Cuidados com a saúde cerebral:
+
+- Sono adequado: A memória é fortemente influenciada pela qualidade do sono. Tente dormir de 7 a 8 horas por noite.
+
+- Exercício físico regular: A prática de atividades físicas melhora a oxigenação cerebral e pode aumentar a capacidade cognitiva.
+
+- Alimentação saudável: Mantenha uma dieta equilibrada com alimentos que favoreçam a saúde do cérebro, como alimentos ricos em antioxidantes, ômega-3 e vitaminas.
+
+ Sugestões de encaminhamentos (se necessário): 
+
+Caso o desempenho continue consistente em uma boa faixa, não há necessidade de intervenções imediatas. No entanto, o indivíduo pode ser incentivado a continuar com as práticas que estimulam o cérebro. Caso haja interesse em avanços maiores, como aumentar ainda mais a capacidade cognitiva, pode-se explorar desafios mais intensos, como aprender novas habilidades ou estudar tópicos mais complexos.`;
+        }
+
+        document.getElementById("prompt").innerText = feedback;
+        document.getElementById("timer").innerText = "";
+        document.getElementById("image").style.display = "none";
+        document.getElementById("wordForm").style.display = "none";
+
+        // Atualiza o index para a próxima imagem
+        imageIndex = imageIndex >= 3 ? 1 : imageIndex + 1;
+        localStorage.setItem(`currentImage_${currentEmail}`, imageIndex);
+
+        // Exibe novamente o form do e-mail para nova tentativa
+        //document.getElementById("emailSection").style.display = "block";
+        //document.getElementById("content").style.display = "none";
+        return;
+      }
+
+      rodada++;
+      document.getElementById("image").style.display = "block";
+      document.getElementById("wordForm").style.display = "none";
+
+      document.getElementById("prompt").innerText = `Rodada ${rodada}/3  - Observe a imagem com atenção...`;
+      setCheckboxesEnabled(false);
+
+      startTimer(1, () => {
+        document.getElementById("image").style.display = "none";
+        document.getElementById("wordForm").style.display = "block";
+        document.getElementById("prompt").innerText = "QUAIS FIGURAS VOCÊ LEMBRA?";
+        resetCheckboxes();
+        embaralharOrdemCheckboxes();
+        setCheckboxesEnabled(true);
+
+        startTimer(1, () => {
+          setCheckboxesEnabled(false);
+          document.getElementById("wordForm").style.display = "none";
+          processarRespostasRodada();
+          iniciarRodada();
+        });
+      });
+    }
+
+    function startTimer(duration, callback) {
+      let timeLeft = duration;
+      document.getElementById("timer").innerText = `Tempo restante: ${timeLeft}s`;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = `Tempo restante: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          callback();
+        }
+      }, 1000);
+    }
+
+    function setCheckboxesEnabled(enabled) {
+      document.querySelectorAll('input[name="palavras"]').forEach(cb => {
+        cb.disabled = !enabled;
+      });
+    }
+
+    function resetCheckboxes() {
+      document.querySelectorAll('input[name="palavras"]').forEach(cb => {
+        cb.checked = false;
+      });
+    }
+
+    function processarRespostasRodada() {
+      const checkboxes = document.querySelectorAll('input[name="palavras"]:checked');
+      const selecionadas = Array.from(checkboxes).map(cb => cb.value);
+      const corretas = respostas[imageIndex];
+      const acertos = selecionadas.filter(p => corretas.includes(p)).length;
+      const porcentagem = ((acertos / corretas.length) * 100);
+      totalPorcentagem += porcentagem;
+    }
+
+    function embaralharOrdemCheckboxes() {
+      const form = document.getElementById("wordForm");
+      const items = Array.from(form.children);
+      // Embaralhamento simples usando Fisher-Yates
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        form.appendChild(items[j]);
+        items.splice(j, 1);
+      }
+    }
+  </script>
+</body>
+
+</html>
