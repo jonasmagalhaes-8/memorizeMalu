@@ -243,7 +243,7 @@ Caso o desempenho continue consistente em uma boa faixa, não há necessidade de
       document.getElementById("prompt").innerText = `Rodada ${rodada}/3  - Observe a imagem com atenção...`;
       setCheckboxesEnabled(false);
 
-      startTimer(1, () => {
+      startTimer(30, () => {
         document.getElementById("image").style.display = "none";
         document.getElementById("wordForm").style.display = "block";
         document.getElementById("prompt").innerText = "QUAIS FIGURAS VOCÊ LEMBRA?";
@@ -251,7 +251,7 @@ Caso o desempenho continue consistente em uma boa faixa, não há necessidade de
         embaralharOrdemCheckboxes();
         setCheckboxesEnabled(true);
 
-        startTimer(1, () => {
+        startTimer(30, () => {
           setCheckboxesEnabled(false);
           document.getElementById("wordForm").style.display = "none";
           processarRespostasRodada();
