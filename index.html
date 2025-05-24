@@ -2,192 +2,210 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Memorize!</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <title>Memorize!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
 
-    #content {
-      display: none;
-    }
+        @media (max-width: 768px) {
+            body {
+                transform: scale(0.97);
+                transform-origin: top center;
+            }
+        }
 
-    #image {
-      max-width: 300px;
-      margin-bottom: 20px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
+        #content {
+            display: none;
+        }
 
-    .word-item {
-      display: inline-block;
-      width: 180px;
-      text-align: left;
-      margin: 5px;
-    }
+        #image {
+            max-width: 300px;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-    #wordForm {
-      display: none;
-    }
+        .word-item {
+            display: inline-block;
+            width: 180px;
+            text-align: left;
+            margin: 5px;
+        }
 
-    #timer {
-      font-size: 24px;
-      font-weight: bold
-    }
-  </style>
+        #wordForm {
+            display: none;
+        }
+
+        #timer {
+            font-size: 24px;
+            font-weight: bold
+        }
+    </style>
 </head>
 
 <body>
-  <div id="nomeSection">
-    <input type="text" id="nomeInput" placeholder="Seu nome" />
-  </div>
-  <div id="emailSection">
-    <input type="email" id="emailInput" placeholder="Seu e-mail" />
-  </div>
-  <div id="idadeSection">
-    <input type="number" id="idadeInput" placeholder="Sua idade" />
-  </div>
-  <div id="generoSection">
-    <input type="text" id="generoInput" placeholder="Seu gênero" />
-  </div>
-  <div id="escolaridadeSection">
-    <input type="text" id="escolaridadeInput" placeholder="Sua escolaridade" />
-  </div>
-  <div id="ocupacaoSection">
-    <input type="text" id="ocupacaoInput" placeholder="Sua ocupação" />
-  </div>
-  <div id="rendaSection">
-    <input type="number" id="rendaInput" placeholder="Sua renda per capita" />
-  </div>
-  <button id="startBtn">Iniciar</button>
+    <div id="nomeSection">
+        <input type="text" id="nomeInput" placeholder="Seu nome" />
+    </div>
+    <div id="emailSection">
+        <input type="email" id="emailInput" placeholder="Seu e-mail" />
+    </div>
+    <div id="idadeSection">
+        <input type="number" id="idadeInput" placeholder="Sua idade" />
+    </div>
+    <div id="generoSection">
+        <input type="text" id="generoInput" placeholder="Seu gênero" />
+    </div>
+    <div id="escolaridadeSection">
+        <input type="text" id="escolaridadeInput" placeholder="Sua escolaridade" />
+    </div>
+    <div id="ocupacaoSection">
+        <input type="text" id="ocupacaoInput" placeholder="Sua ocupação" />
+    </div>
+    <div id="rendaSection">
+        <input type="number" id="rendaInput" placeholder="Sua renda per capita" />
+    </div>
+    <button id="startBtn">Iniciar</button>
 
+    <div id="content">
+        <div id="timer"></div>
+        <p id="prompt"></p>
+        <img id="image" src="" alt="Imagem de figuras" />
+        <form id="wordForm"></form>
+        <p id="result"></p>
+    </div>
 
+    <script>
+        const palavras = [
+            "Casa", "Almofada", "Relógio", "Martela", "Vela", "Barco", "Isqueiro", "Boné", "Caderno", "Gato", "Astronauta",
+            "Tesoura", "Papel higiênico", "Fone", "Banheira", "Oceano", "Árvore", "Piscina", "Espelho", "Caneta", "Fita",
+            "Liquidificador", "Estrela", "Trem", "Avião", "Carro", "Tampinha", "Garrafa", "Camiseta", "Ônibus", "Sabonete",
+            "Praia", "Pincel", "Saco", "Chapéu", "Piano", "Perfume", "Mala", "Chinelo", "Livro", "Abajur", "Guitarra",
+            "Seringa", "Nuvem", "Cachorro", "Banana", "Panela", "Colher", "Porta-retrato", "Guarda-chuva", "Cinto",
+            "Computador", "Robô", "Toalha", "Vaso sanitário", "Banheiro", "Bicicleta", "Fita", "Cama", "Flor"
+        ];
 
+        const respostas = {
+            1: ["Casa", "Cama", "Árvore", "Mala", "Avião", "Bicicleta", "Carro", "Barco", "Garrafa"],
+            2: ["Ônibus", "Guarda-chuva", "Praia", "Chapéu", "Piscina", "Livro", "Abajur", "Caneta", "Cachorro"],
+            3: ["Panela", "Colher", "Papel higiênico", "Liquidificador", "Flor", "Banheira", "Computador", "Gato", "Vaso sanitário"]
+        };
 
-  <div id="content">
-    <div id="timer"></div>
-    <p id="prompt"></p>
-    <img id="image" src="" alt="Imagem de figuras" />
-    <form id="wordForm"></form>
-    <p id="result"></p>
-  </div>
+        let rodada = 0;
+        let totalPorcentagem = 0;
+        let timerInterval = null;
+        let imageIndex = 1;
+        let currentUserData = {};
+        let currentTestTotalAcertos = 0;
 
-  <script>
-    const palavras = [
-      "Casa", "Almofada", "Relógio", "Martela", "Vela", "Barco", "Isqueiro", "Boné", "Caderno", "Gato", "Astronauta",
-      "Tesoura", "Papel higiênico", "Fone", "Banheira", "Oceano", "Árvore", "Piscina", "Espelho", "Caneta", "Fita",
-      "Liquidificador", "Estrela", "Trem", "Avião", "Carro", "Tampinha", "Garrafa", "Camiseta", "Ônibus", "Sabonete",
-      "Praia", "Pincel", "Saco", "Chapéu", "Piano", "Perfume", "Mala", "Chinelo", "Livro", "Abajur", "Guitarra",
-      "Seringa", "Nuvem", "Cachorro", "Banana", "Panela", "Colher", "Porta-retrato", "Guarda-chuva", "Cinto",
-      "Computador", "Robô", "Toalha", "Vaso sanitário", "Banheiro", "Bicicleta", "Fita", "Cama", "Flor"
-    ];
+        const startBtn = document.getElementById("startBtn");
 
-    const respostas = {
-      1: ["Casa", "Cama", "Árvore", "Mala", "Avião", "Bicicleta", "Carro", "Barco", "Garrafa"],
-      2: ["Ônibus", "Guarda-chuva", "Praia", "Chapéu", "Piscina", "Livro", "Abajur", "Caneta", "Cachorro"],
-      3: ["Panela", "Colher", "Papel higiênico", "Liquidificador", "Flor", "Banheira", "Computador", "Gato", "Vaso sanitário"]
-    };
+        startBtn.addEventListener("click", () => {
+            const nome = document.getElementById("nomeInput").value.trim();
+            const email = document.getElementById("emailInput").value.trim().toLowerCase();
+            const idadeStr = document.getElementById("idadeInput").value.trim();
+            const genero = document.getElementById("generoInput").value.trim();
+            const escolaridade = document.getElementById("escolaridadeInput").value.trim();
+            const ocupacao = document.getElementById("ocupacaoInput").value.trim();
+            const rendaStr = document.getElementById("rendaInput").value.trim();
 
-    let rodada = 0;
-    let totalPorcentagem = 0;
-    let timerInterval = null;
-    let currentEmail = "";
-    let imageIndex = 1;
+            if (!nome) { alert("Por favor, insira seu nome."); return; }
+            if (!email || !email.includes("@") || !email.includes(".")) { alert("Por favor, insira um e-mail válido."); return; }
+            const idadeNum = parseInt(idadeStr);
+            if (!idadeStr || isNaN(idadeNum) || idadeNum <= 0) { alert("Por favor, insira uma idade válida."); return; }
+            const rendaNum = parseFloat(rendaStr);
+            if (!rendaStr || isNaN(rendaNum) || rendaNum < 0) { alert("Por favor, insira uma renda válida."); return; }
+            if (!genero) { alert("Por favor, insira seu gênero."); return; }
+            if (!escolaridade) { alert("Por favor, insira sua escolaridade."); return; }
+            if (!ocupacao) { alert("Por favor, insira sua ocupação."); return; }
 
-    const startBtn = document.getElementById("startBtn");
+            currentUserData = {
+                nome: nome, email: email, idade: idadeNum, genero: genero,
+                escolaridade: escolaridade, ocupacao: ocupacao, rendaPerCapita: rendaNum
+            };
 
-    startBtn.addEventListener("click", () => {
-      const nome = document.getElementById("nomeInput").value.trim();
-      const email = document.getElementById("emailInput").value.trim().toLowerCase();
-      const idade = document.getElementById("idadeInput").value.trim();
-      const genero = document.getElementById("generoInput").value.trim();
-      const escolaridade = document.getElementById("escolaridadeInput").value.trim();
-      const ocupacao = document.getElementById("ocupacaoInput").value.trim();
-      const renda = document.getElementById("rendaInput").value.trim();
+            document.getElementById("nomeSection").style.display = "none";
+            document.getElementById("emailSection").style.display = "none";
+            document.getElementById("idadeSection").style.display = "none";
+            document.getElementById("generoSection").style.display = "none";
+            document.getElementById("escolaridadeSection").style.display = "none";
+            document.getElementById("ocupacaoSection").style.display = "none";
+            document.getElementById("rendaSection").style.display = "none";
+            document.getElementById("startBtn").style.display = "none";
+            document.getElementById("content").style.display = "block";
 
-      // Nome obrigatório
-      if (!nome) {
-        alert("Por favor, insira seu nome.");
-        return;
-      }
+            rodada = 0; totalPorcentagem = 0; currentTestTotalAcertos = 0;
+            imageIndex = parseInt(localStorage.getItem(`currentImage_${currentUserData.email}`)) || 1;
+            document.getElementById("image").src = `src/imagem${imageIndex}.png`;
+            document.getElementById("wordForm").innerHTML = ""; // Limpa checkboxes anteriores
+            document.getElementById("result").innerText = ""; // Limpa resultado anterior se houver
+            palavras.forEach(p => {
+                const div = document.createElement("div");
+                div.className = "word-item";
+                div.innerHTML = `<label><input type="checkbox" name="palavras" value="${p}" disabled> ${p}</label>`;
+                document.getElementById("wordForm").appendChild(div);
+            });
+            iniciarRodada();
+        });
 
-      // Validação do e-mail
-      if (!email || !email.includes("@") || !email.includes(".")) {
-        alert("Por favor, insira um e-mail válido.");
-        return;
-      }
+        function iniciarRodada() {
+            if (rodada >= 3) {
+                const mediaPercentualTeste = parseFloat((totalPorcentagem / 3).toFixed(2));
+                const pontuacaoArredondada = Math.round(mediaPercentualTeste);
+                localStorage.setItem(`media_img${imageIndex}_${currentUserData.email}`, mediaPercentualTeste);
 
-      // Validação da idade (deve ser número > 0)
-      if (!idade || isNaN(idade) || parseInt(idade) <= 0) {
-        alert("Por favor, insira uma idade válida.");
-        return;
-      }
+                const totalItensPossiveisTeste = 3 * (respostas[imageIndex] ? respostas[imageIndex].length : 0);
 
-      // Validação da renda (deve ser número >= 0)
-      if (!renda || isNaN(renda) || parseFloat(renda) < 0) {
-        alert("Por favor, insira uma renda válida.");
-        return;
-      }
+                const dadosParaApi = {
+                    nome: currentUserData.nome,
+                    email: currentUserData.email,
+                    idade: currentUserData.idade,
+                    genero: currentUserData.genero,
+                    escolaridade: currentUserData.escolaridade,
+                    ocupacao: currentUserData.ocupacao,
+                    rendaPerCapita: currentUserData.rendaPerCapita,
+                    imagem1: null, acertosNaImagem1: null, totalItensNaImagem1: null,
+                    imagem2: null, acertosNaImagem2: null, totalItensNaImagem2: null,
+                    imagem3: null, acertosNaImagem3: null, totalItensNaImagem3: null,
+                };
 
-      // Demais campos obrigatórios
-      if (!genero) {
-        alert("Por favor, insira seu gênero.");
-        return;
-      }
-      if (!escolaridade) {
-        alert("Por favor, insira sua escolaridade.");
-        return;
-      }
-      if (!ocupacao) {
-        alert("Por favor, insira sua ocupação.");
-        return;
-      }
-      currentEmail = email;
+                if (imageIndex === 1) {
+                    dadosParaApi.imagem1 = pontuacaoArredondada;
+                    dadosParaApi.acertosNaImagem1 = currentTestTotalAcertos;
+                    dadosParaApi.totalItensNaImagem1 = totalItensPossiveisTeste;
+                } else if (imageIndex === 2) {
+                    dadosParaApi.imagem2 = pontuacaoArredondada;
+                    dadosParaApi.acertosNaImagem2 = currentTestTotalAcertos;
+                    dadosParaApi.totalItensNaImagem2 = totalItensPossiveisTeste;
+                } else if (imageIndex === 3) {
+                    dadosParaApi.imagem3 = pontuacaoArredondada;
+                    dadosParaApi.acertosNaImagem3 = currentTestTotalAcertos;
+                    dadosParaApi.totalItensNaImagem3 = totalItensPossiveisTeste;
+                }
 
-      // Esconde o form do email e mostra o conteúdo do teste
-      document.getElementById("nomeSection").style.display = "none";
-      document.getElementById("emailSection").style.display = "none";
-      document.getElementById("idadeSection").style.display = "none";
-      document.getElementById("generoSection").style.display = "none";
-      document.getElementById("escolaridadeSection").style.display = "none";
-      document.getElementById("ocupacaoSection").style.display = "none";
-      document.getElementById("rendaSection").style.display = "none";
-      document.getElementById("startBtn").style.display = "none";
-      document.getElementById("content").style.display = "block";
+                fetchComRetry('https://rural-tabbie-pinheiror-malu-397b9d81.koyeb.app/memorize/teste', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosParaApi),
+                })
+                    .then(response => {
+                        // Se quiser ler json ou não, depende do que a API responde
+                        // Aqui só vou supor que não retorna corpo, só status 200
+                        console.log('Sucesso API com status:', response.status);
+                    })
+                    .catch(error => {
+                        console.error('Erro API:', error);
+                        alert("Erro ao salvar resultado: " + error.message);
+                    });
 
-      rodada = 0;
-      totalPorcentagem = 0;
-
-      // Busca a imagem que o usuário deve ver primeiro, ou começa da 1
-      imageIndex = parseInt(localStorage.getItem(`currentImage_${currentEmail}`)) || 1;
-      document.getElementById("image").src = `src/imagem${imageIndex}.png`;
-
-      document.getElementById("wordForm").innerHTML = "";
-      document.getElementById("result").innerText = "";
-      document.getElementById("wordForm").style.display = "none";
-
-      palavras.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "word-item";
-        div.innerHTML = `<label><input type="checkbox" name="palavras" value="${p}" disabled> ${p}</label>`;
-        document.getElementById("wordForm").appendChild(div);
-      });
-
-      iniciarRodada();
-    });
-
-    function iniciarRodada() {
-      if (rodada >= 3) {
-        const media = (totalPorcentagem / 3).toFixed(2);
-        localStorage.setItem(`media_img${imageIndex}_${currentEmail}`, media);
-
-        let feedback;
-
-        if (media <= 39) {
-          feedback = `Seu desempenho no teste de memória imediata foi de 0% a 30%, o que indica que você pode estar enfrentando dificuldades consideráveis em reter e recuperar informações rapidamente. Isso é perfeitamente compreensível e pode ocorrer por vários motivos, como fadiga, estresse ou falta de estratégias específicas de memorização. Recomenda-se uma avaliação mais aprofundada para identificar causas subjacentes e o desenvolvimento de um plano de intervenção focado em estratégias de memorização e organização da informação.
+                let feedback;
+                if (mediaPercentualTeste <= 39) {
+                    feedback = `Seu desempenho no teste de memória imediata foi de 0% a 30%, o que indica que você pode estar enfrentando dificuldades consideráveis em reter e recuperar informações rapidamente. Isso é perfeitamente compreensível e pode ocorrer por vários motivos, como fadiga, estresse ou falta de estratégias específicas de memorização. Recomenda-se uma avaliação mais aprofundada para identificar causas subjacentes e o desenvolvimento de um plano de intervenção focado em estratégias de memorização e organização da informação.
 
  Sugestões para melhorar a memória de curto prazo: 
 
@@ -222,9 +240,8 @@
 Avaliação de saúde física e emocional: Se houver preocupação com aspectos como cansaço crônico, estresse ou problemas de saúde, seria útil uma avaliação médica ou psicológica para verificar fatores que podem estar impactando a memória.
 
 Considerar o acompanhamento com um neuropsicólogo ou psicólogo especializado, que possa oferecer exercícios personalizados e avaliar possíveis questões subjacentes que afetam a memória.`
-        }
-        else if (media >= 40 && media <= 69) {
-          feedback = `Seu desempenho no teste de memória imediata foi de 40% a 60%, o que indica que você está encontrando desafios em reter e recuperar informações rapidamente. Isso é comum e pode ser influenciado por diversos fatores, como distrações, cansaço ou até a falta de estratégias eficazes de memorização. Recomenda-se trabalhar em técnicas de memorização, como agrupamento e repetição, e realizar atividades que estimulem a memória, além de avaliar a qualidade do sono, fatores emocionais e nível de estresse que possam estar impactando o desempenho.
+                } else if (mediaPercentualTeste >= 40 && mediaPercentualTeste <= 69) {
+                    feedback = `Seu desempenho no teste de memória imediata foi de 40% a 60%, o que indica que você está encontrando desafios em reter e recuperar informações rapidamente. Isso é comum e pode ser influenciado por diversos fatores, como distrações, cansaço ou até a falta de estratégias eficazes de memorização. Recomenda-se trabalhar em técnicas de memorização, como agrupamento e repetição, e realizar atividades que estimulem a memória, além de avaliar a qualidade do sono, fatores emocionais e nível de estresse que possam estar impactando o desempenho.
 
 Sugestões para melhorar a memória de curto prazo:
 
@@ -253,9 +270,8 @@ Sugestões para melhorar a memória de curto prazo:
  Sugestões de encaminhamentos: 
 
 Avaliação de estresse ou saúde mental: Caso o estresse ou a ansiedade esteja afetando o desempenho cognitivo, pode ser útil buscar apoio psicológico.`;
-        }
-        else {
-          feedback = `Você teve um excelente desempenho no teste de memória imediata, com acertos entre 70% e 100%. Isso demonstra uma boa capacidade de retenção e recuperação de informações a curto prazo, o que é muito positivo tanto para o aprendizado quanto para a realização de tarefas cotidianas. Recomenda-se que continue praticando e aplicando estratégias eficazes de memorização, com foco na diversidade de estímulos e desafios para o cérebro, pois isso ajudará a manter e até melhorar ainda mais sua performance cognitiva.
+                } else {
+                    feedback = `Você teve um excelente desempenho no teste de memória imediata, com acertos entre 70% e 100%. Isso demonstra uma boa capacidade de retenção e recuperação de informações a curto prazo, o que é muito positivo tanto para o aprendizado quanto para a realização de tarefas cotidianas. Recomenda-se que continue praticando e aplicando estratégias eficazes de memorização, com foco na diversidade de estímulos e desafios para o cérebro, pois isso ajudará a manter e até melhorar ainda mais sua performance cognitiva.
 
 Sugestões para manutenção e melhora da memória de curto prazo:
 
@@ -286,93 +302,96 @@ Sugestões para manutenção e melhora da memória de curto prazo:
  Sugestões de encaminhamentos (se necessário): 
 
 Caso o desempenho continue consistente em uma boa faixa, não há necessidade de intervenções imediatas. No entanto, o indivíduo pode ser incentivado a continuar com as práticas que estimulam o cérebro. Caso haja interesse em avanços maiores, como aumentar ainda mais a capacidade cognitiva, pode-se explorar desafios mais intensos, como aprender novas habilidades ou estudar tópicos mais complexos.`;
+                }
+                document.getElementById("prompt").innerHTML = feedback.replace(/\n/g, '<br>');
+                document.getElementById("timer").innerText = "";
+                document.getElementById("image").style.display = "none";
+                document.getElementById("wordForm").style.display = "none";
+                imageIndex = imageIndex >= 3 ? 1 : imageIndex + 1;
+                localStorage.setItem(`currentImage_${currentUserData.email}`, imageIndex);
+                return;
+            }
+
+            rodada++;
+            document.getElementById("image").style.display = "block";
+            document.getElementById("wordForm").style.display = "none";
+            document.getElementById("prompt").innerText = `Rodada ${rodada}/3  - Observe a imagem com atenção...`;
+            setCheckboxesEnabled(false);
+            startTimer(30, () => {
+                document.getElementById("image").style.display = "none";
+                document.getElementById("wordForm").style.display = "block";
+                document.getElementById("prompt").innerText = "QUAIS FIGURAS VOCÊ LEMBRA?\n(role pra baixo pra ver todas as opções)";
+                resetCheckboxes(); embaralharOrdemCheckboxes(); setCheckboxesEnabled(true);
+                startTimer(30, () => {
+                    setCheckboxesEnabled(false); document.getElementById("wordForm").style.display = "none";
+                    processarRespostasRodada();
+                    iniciarRodada();
+                });
+            });
         }
 
-        document.getElementById("prompt").innerText = feedback;
-        document.getElementById("timer").innerText = "";
-        document.getElementById("image").style.display = "none";
-        document.getElementById("wordForm").style.display = "none";
-
-        // Atualiza o index para a próxima imagem
-        imageIndex = imageIndex >= 3 ? 1 : imageIndex + 1;
-        localStorage.setItem(`currentImage_${currentEmail}`, imageIndex);
-
-        // Exibe novamente o form do e-mail para nova tentativa
-        //document.getElementById("emailSection").style.display = "block";
-        //document.getElementById("content").style.display = "none";
-        return;
-      }
-
-      rodada++;
-      document.getElementById("image").style.display = "block";
-      document.getElementById("wordForm").style.display = "none";
-
-      document.getElementById("prompt").innerText = `Rodada ${rodada}/3  - Observe a imagem com atenção...`;
-      setCheckboxesEnabled(false);
-
-      startTimer(30, () => {
-        document.getElementById("image").style.display = "none";
-        document.getElementById("wordForm").style.display = "block";
-        document.getElementById("prompt").innerText = "QUAIS FIGURAS VOCÊ LEMBRA?";
-        resetCheckboxes();
-        embaralharOrdemCheckboxes();
-        setCheckboxesEnabled(true);
-
-        startTimer(30, () => {
-          setCheckboxesEnabled(false);
-          document.getElementById("wordForm").style.display = "none";
-          processarRespostasRodada();
-          iniciarRodada();
-        });
-      });
-    }
-
-    function startTimer(duration, callback) {
-      let timeLeft = duration;
-      document.getElementById("timer").innerText = `Tempo restante: ${timeLeft}s`;
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById("timer").innerText = `Tempo restante: ${timeLeft}s`;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          callback();
+        function fetchComRetry(url, options, maxRetries = 3) {
+            return fetch(url, options).then(response => {
+                if (!response.ok) {
+                    if (maxRetries > 0) {
+                        console.warn(`Resposta ${response.status} não OK. Tentando novamente... Restam ${maxRetries} tentativas.`);
+                        return fetchComRetry(url, options, maxRetries - 1);
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(`Falha API: ${response.status} ${text}`);
+                        });
+                    }
+                }
+                return response; // sucesso
+            });
         }
-      }, 1000);
-    }
 
-    function setCheckboxesEnabled(enabled) {
-      document.querySelectorAll('input[name="palavras"]').forEach(cb => {
-        cb.disabled = !enabled;
-      });
-    }
+        function startTimer(duration, callback) {
+            let timeLeft = duration;
+            document.getElementById("timer").innerText = `Tempo restante: ${timeLeft}s`;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").innerText = `Tempo restante: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    callback();
+                }
+            }, 1000);
+        }
 
-    function resetCheckboxes() {
-      document.querySelectorAll('input[name="palavras"]').forEach(cb => {
-        cb.checked = false;
-      });
-    }
+        function setCheckboxesEnabled(enabled) {
+            document.querySelectorAll('input[name="palavras"]').forEach(cb => {
+                cb.disabled = !enabled;
+            });
+        }
 
-    function processarRespostasRodada() {
-      const checkboxes = document.querySelectorAll('input[name="palavras"]:checked');
-      const selecionadas = Array.from(checkboxes).map(cb => cb.value);
-      const corretas = respostas[imageIndex];
-      const acertos = selecionadas.filter(p => corretas.includes(p)).length;
-      const porcentagem = ((acertos / corretas.length) * 100);
-      totalPorcentagem += porcentagem;
-    }
+        function resetCheckboxes() {
+            document.querySelectorAll('input[name="palavras"]').forEach(cb => {
+                cb.checked = false;
+            });
+        }
 
-    function embaralharOrdemCheckboxes() {
-      const form = document.getElementById("wordForm");
-      const items = Array.from(form.children);
-      // Embaralhamento simples usando Fisher-Yates
-      for (let i = items.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        form.appendChild(items[j]);
-        items.splice(j, 1);
-      }
-    }
-  </script>
+        function processarRespostasRodada() {
+            const checkboxes = document.querySelectorAll('input[name="palavras"]:checked');
+            const selecionadas = Array.from(checkboxes).map(cb => cb.value);
+            const corretasDaImagemAtual = respostas[imageIndex];
+            const acertosNestaRodada = selecionadas.filter(p => corretasDaImagemAtual.includes(p)).length;
+            currentTestTotalAcertos += acertosNestaRodada;
+            const porcentagemDaRodada = ((acertosNestaRodada / corretasDaImagemAtual.length) * 100);
+            totalPorcentagem += porcentagemDaRodada;
+        }
+
+        function embaralharOrdemCheckboxes() {
+            const form = document.getElementById("wordForm");
+            const items = Array.from(form.children);
+            for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [items[i], items[j]] = [items[j], items[i]];
+            }
+            items.forEach(item => form.appendChild(item));
+        }
+    </script>
 </body>
 
 </html>
